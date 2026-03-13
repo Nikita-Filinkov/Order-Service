@@ -11,3 +11,4 @@ wheels/
 .env
 .ruff_cache
 .env.local
+k3scluster.yaml
