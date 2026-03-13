@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: order_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DOCKER_ENV=true
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+#  app:
+#    build: .
+#    container_name: order_app
+#    restart: unless-stopped
+#    depends_on:
+#      - postgres
+#    env_file:
+#      - .env
+#    ports:
+#      - "8000:8000"
+
+volumes:
+  postgres_data:

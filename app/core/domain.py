@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
-from enum import StrEnum
+from enum import StrEnum, Enum
+
 from pydantic import BaseModel
 
 
@@ -48,7 +49,7 @@ class EventTypeEnum(StrEnum):
     ORDER_SHIPPED = "ORDER.SHIPPED"
 
 
-class OutboxEventStatus(BaseModel):
+class OutboxEventStatus(StrEnum):
     """Статусы event in Outbox"""
     PENDING = "PENDING"
     SENT = "SENT"
