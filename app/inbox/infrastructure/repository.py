@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.orders.inbox.infrastructure.db_schemes.db_schemes import IdempotencyKey
+from app.inbox.infrastructure.db_schem import IdempotencyKey
 
 
 class IdempotencyRepository:

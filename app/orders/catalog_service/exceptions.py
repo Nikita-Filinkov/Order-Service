@@ -14,4 +14,3 @@ class ProviderTemporaryError(CatalogError):
         self.status = status
         self.message = message
         super().__init__(self.status, self.message)
-

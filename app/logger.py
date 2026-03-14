@@ -23,7 +23,9 @@ class CustomJsonFormatter(JsonFormatter):
             log_record["level"] = record.levelname
 
 
-formatter = CustomJsonFormatter("%(timestamp)s %(level)s %(name)s %(message)s", json_ensure_ascii=False)
+formatter = CustomJsonFormatter(
+    "%(timestamp)s %(level)s %(name)s %(message)s", json_ensure_ascii=False
+)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(settings.LOG_LEVEL)

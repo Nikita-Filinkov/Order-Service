@@ -17,5 +17,3 @@ class ItemDTO(BaseModel):
 
     class Config:
         extra = "ignore"
-
-
