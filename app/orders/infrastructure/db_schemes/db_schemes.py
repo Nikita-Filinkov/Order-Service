@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, DateTime, ForeignKey, String, JSON, DECIMAL
+from sqlalchemy import Enum, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from app.core.domain import OrderStatusEnum
+
 from app.database import Base
+from app.orders.core.models import OrderStatusEnum
 
 
 class Order(Base):

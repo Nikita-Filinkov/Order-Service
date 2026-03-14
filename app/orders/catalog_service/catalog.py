@@ -12,8 +12,8 @@ from tenacity import (
     wait_exponential,
 )
 
-from app.catalog_service.catalog_dto import ItemDTO
-from app.catalog_service.exceptions import ProviderTemporaryError, CatalogError
+from app.orders.catalog_service.catalog_dto import ItemDTO
+from app.orders.catalog_service.exceptions import ProviderTemporaryError, CatalogError
 from app.config import settings
 from app.logger import logger
 
