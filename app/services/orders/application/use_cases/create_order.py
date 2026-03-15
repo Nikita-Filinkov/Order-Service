@@ -63,13 +63,11 @@ class CreateOrderUseCase:
             status_history=[OrderStatusEnum.NEW],
         )
 
-        payment_callback_url = settings.callback_url + "/api/orders/payment-callback"
-
         try:
             payment_dto = CreatePaymentRequest(
                 order_id=str(order.id),
                 amount=order.calculate_total(),
-                callback_url=payment_callback_url,
+                callback_url=settings.callback_url,
                 idempotency_key=idempotency_key,
             )
             await self.payment_client.create_payment(payment_dto)
