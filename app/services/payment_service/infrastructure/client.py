@@ -54,13 +54,15 @@ class PaymentClient:
         session = await self._get_session()
         try:
             async with session.post(url, json=dto.model_dump(mode="json")) as resp:
+                response_text = await resp.text()
                 status = resp.status
+                logger.error(f"Payment service error {status}: {response_text}")
                 if status < 300:
                     data = await resp.json()
                     return PaymentResponse(**data)
                 if status in self.RETRY_STATUSES:
                     raise PaymentTemporaryError(status=status)
-                raise PaymentError(status=status, message=await resp.text())
+                raise PaymentError(status=status, message=response_text)
         except (ClientError, asyncio.TimeoutError):
             raise PaymentTemporaryError(status=0)
 
