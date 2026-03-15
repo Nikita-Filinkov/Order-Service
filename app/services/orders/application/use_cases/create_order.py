@@ -1,5 +1,4 @@
 from uuid import uuid4
-from fastapi import HTTPException
 
 from app.services.catalog_service.exceptions import (
     CatalogTemporaryError,
@@ -73,13 +72,15 @@ class CreateOrderUseCase:
                 callback_url=payment_callback_url,
                 idempotency_key=idempotency_key,
             )
-            payment = await self.payment_client.create_payment(payment_dto)
+            await self.payment_client.create_payment(payment_dto)
         except (PaymentTemporaryError, PaymentError):
             order.status = OrderStatusEnum.CANCELLED
             order.status_history.append(OrderStatusEnum.CANCELLED)
             async with self._unit_of_work() as uow:
                 saved_order = await uow.orders.add(order)
-                await uow.inbox.save(idempotency_key, saved_order.model_dump(mode='json'))
+                await uow.inbox.save(
+                    idempotency_key, saved_order.model_dump(mode="json")
+                )
                 await uow.commit()
             raise PaymentCreationError("Ошибка при оплате")
 

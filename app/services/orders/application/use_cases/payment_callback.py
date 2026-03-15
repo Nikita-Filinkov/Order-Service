@@ -1,6 +1,5 @@
-from uuid import UUID
-from app.services.core.models import Order, OrderStatusEnum
-from app.services.exceptions import OrderNotFoundError, WrongCallbackOrderId
+from app.services.core.models import OrderStatusEnum
+from app.services.exceptions import WrongCallbackOrderId
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import PaymentCallbackSchem
 
@@ -19,11 +18,15 @@ class PaymentCallbackUseCase:
             if not order:
                 raise WrongCallbackOrderId
 
-            new_status = OrderStatusEnum.PAID if callback.status == "succeeded" else OrderStatusEnum.CANCELLED
+            new_status = (
+                OrderStatusEnum.PAID
+                if callback.status == "succeeded"
+                else OrderStatusEnum.CANCELLED
+            )
 
             await uow.orders.update_status(order.id, new_status)
 
-            await uow.inbox.save(callback.payment_id, callback.model_dump(mode='json'))
+            await uow.inbox.save(callback.payment_id, callback.model_dump(mode="json"))
             await uow.commit()
 
         return {"status": "ok"}
