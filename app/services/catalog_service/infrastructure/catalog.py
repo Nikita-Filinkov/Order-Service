@@ -73,7 +73,7 @@ class CatalogClient:
                         id=item_data["id"],
                         name=item_data["name"],
                         price=item_data["price"],
-                        available_qty=item_data["item_data"]
+                        available_qty=item_data["available_qty"],
                     )
                     return item
 
