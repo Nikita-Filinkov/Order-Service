@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.logger import logger
 from app.services.catalog_service.exceptions import (
     CatalogTemporaryError,
     NotItemException,
@@ -63,11 +64,13 @@ class CreateOrderUseCase:
             status_history=[OrderStatusEnum.NEW],
         )
 
+        payment_callback_url = settings.callback_url + "/api/orders/payment-callback"
+        logger.info(f"Sending payment callback URL: {payment_callback_url}")
         try:
             payment_dto = CreatePaymentRequest(
                 order_id=str(order.id),
                 amount=order.calculate_total(),
-                callback_url=settings.callback_url,
+                callback_url=payment_callback_url,
                 idempotency_key=idempotency_key,
             )
             await self.payment_client.create_payment(payment_dto)
