@@ -1,7 +1,7 @@
 import asyncio
 from pprint import pprint
 
-from app.orders.catalog_service.infrastructure.catalog import CatalogClient
+from app.services.catalog_service.infrastructure.catalog import CatalogClient
 
 
 async def main():
