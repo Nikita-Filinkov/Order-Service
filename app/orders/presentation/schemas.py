@@ -7,7 +7,7 @@ from app.orders.core.models import OrderStatusEnum, Order
 
 
 class CreateOrderSchem(BaseModel):
-    user_id: UUID
+    user_id: str
     quantity: int
     item_id: UUID
     idempotency_key: str

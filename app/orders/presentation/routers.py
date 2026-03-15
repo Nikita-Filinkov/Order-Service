@@ -21,7 +21,7 @@ async def create_order(
     return ResponseOrderSchem.from_domain(order)
 
 
-@router.get("/api/orders{order_id}", response_model=ResponseOrderSchem)
+@router.get("/api/orders/{order_id}", response_model=ResponseOrderSchem)
 @inject
 async def get_order(
     order_id: UUID,
