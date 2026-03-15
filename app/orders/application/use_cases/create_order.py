@@ -33,7 +33,8 @@ class CreateOrderUseCase:
                 return order
         try:
             catalog_item = await self.catalog_client.check_and_get(
-                str(data_order.item_id)
+                str(data_order.item_id),
+                data_order.quantity
             )
         except (ProviderTemporaryError, NotItemException, QuantityException):
             raise
