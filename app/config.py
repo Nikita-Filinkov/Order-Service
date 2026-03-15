@@ -55,9 +55,9 @@ class Settings(BaseSettings):
     def callback_url(self):
         return (
             f"http://"
-            f"{settings.K8S_SERVICE_NAME}."
-            f"{settings.K8S_NAMESPACE}.svc.cluster.local:"
-            f"{settings.K8S_SERVICE_PORT}"
+            f"{self.K8S_SERVICE_NAME}."
+            f"{self.K8S_NAMESPACE}.svc:"
+            f"{self.K8S_SERVICE_PORT}"
         )
 
 

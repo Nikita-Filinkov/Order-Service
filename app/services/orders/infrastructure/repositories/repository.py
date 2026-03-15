@@ -21,7 +21,7 @@ class OrderRepository:
         items_for_db = []
         for item in order.items:
             item_dict = item.model_dump()
-            item_dict['id'] = str(item_dict['id'])
+            item_dict["id"] = str(item_dict["id"])
             item_dict["price"] = str(item_dict["price"])
             items_for_db.append(item_dict)
 
