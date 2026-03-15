@@ -13,7 +13,7 @@ from tenacity import (
 )
 
 from app.services.catalog_service.exceptions import (
-    ProviderTemporaryError,
+    CatalogTemporaryError,
     CatalogError,
     QuantityException,
     NotItemException,
@@ -32,7 +32,7 @@ class CatalogClient:
         ClientError,
         asyncio.TimeoutError,
         ConnectionError,
-        ProviderTemporaryError,
+        CatalogTemporaryError,
     )
 
     RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
@@ -82,7 +82,7 @@ class CatalogClient:
                     logger.warning(
                         f"Временная ошибка при получении товара {item_id}, статус {status}"
                     )
-                    raise ProviderTemporaryError(status=status)
+                    raise CatalogTemporaryError(status=status)
 
                 error_message = (
                     f"Ошибка каталога: статус {status}, причина {resp.reason}"
@@ -95,7 +95,7 @@ class CatalogClient:
                 "Ошибка при попытке получить информацию по товару из Catalog Service"
             )
             logger.warning(message, extra={"tries": self.MAX_RETRIES, "error": str(e)})
-            raise ProviderTemporaryError(status=0, message=message)
+            raise CatalogTemporaryError(status=0, message=message)
 
     async def check_availability(self):
         """Проверка доступности API"""
@@ -116,7 +116,7 @@ class CatalogClient:
         """Проверка, что такое количество есть на складе"""
         try:
             item = await self.get_item_by_id(item_id=item_id)
-        except (ProviderTemporaryError, NotItemException):
+        except (CatalogTemporaryError, NotItemException):
             raise
         if quantity <= item.available_qty:
             return item

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.services.catalog_service.exceptions import (
     NotItemException,
     QuantityException,
-    ProviderTemporaryError,
+    CatalogTemporaryError,
 )
 from app.services.exceptions import (
     NotItemCatalogException,
@@ -20,6 +20,6 @@ def register_exception_handlers(app: FastAPI):
     async def quantity_handler(request, exc):
         raise QuantityCatalogException
 
-    @app.exception_handler(ProviderTemporaryError)
+    @app.exception_handler(CatalogTemporaryError)
     async def provider_temporary_handler(request, exc):
         raise OrderNotRequestException

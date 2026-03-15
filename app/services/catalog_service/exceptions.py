@@ -7,10 +7,12 @@ class CatalogError(Exception):
         super().__init__(f"HTTP {status}: {message}")
 
 
-class ProviderTemporaryError(CatalogError):
+class CatalogTemporaryError(CatalogError):
     """Исключение для временных ошибок"""
 
-    def __init__(self, status: int, message: str = "Временная ошибка"):
+    def __init__(
+        self, status: int, message: str = "Временная ошибка у Catalog Service"
+    ):
         self.status = status
         self.message = message
         super().__init__(self.status, self.message)

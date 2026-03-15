@@ -4,9 +4,14 @@ from fastapi import APIRouter, Depends
 from dependency_injector.wiring import inject, Provide
 
 from app.services.orders.application.use_cases.get_order import GetOrderUseCase
+from app.services.orders.application.use_cases.payment_callback import PaymentCallbackUseCase
 from app.services.orders.infrastructure.container import Container
 from app.services.orders.application.use_cases.create_order import CreateOrderUseCase
-from app.services.orders.presentation.schemas import CreateOrderSchem, ResponseOrderSchem
+from app.services.orders.infrastructure.unit_of_work import UnitOfWork
+from app.services.orders.presentation.schemas import (
+    CreateOrderSchem,
+    ResponseOrderSchem, PaymentCallbackSchem,
+)
 
 router = APIRouter()
 
@@ -29,3 +34,12 @@ async def get_order(
 ):
     order = await use_case(order_id)
     return ResponseOrderSchem.from_domain(order)
+
+
+@router.post("/api/orders/payment-callback")
+@inject
+async def payment_callback(
+    callback: PaymentCallbackSchem,
+    use_case: PaymentCallbackUseCase = Depends(Provide[Container.payment_callback_use_case]),
+):
+    return await use_case(callback)

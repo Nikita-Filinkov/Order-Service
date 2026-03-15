@@ -18,6 +18,13 @@ class OrderNotFoundError(OrderException):
     detail = "Такого заказа нет"
 
 
+class WrongCallbackOrderId(OrderException):
+    """Исключение если с Payment Service вернул не верный order_id"""
+
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Не верный order_id"
+
+
 class QuantityCatalogException(OrderException):
     """Исключение если количество товара в заказе больше, чем есть на складе"""
 

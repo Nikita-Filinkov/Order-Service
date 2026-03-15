@@ -12,7 +12,6 @@ from alembic import context
 from app.config import settings
 from app.database import Base
 from app.services.orders.infrastructure.db_schemes.db_schemes import OrderTable  # noqa
-from app.services.orders.infrastructure.db_schemes.db_schemes import OrderStatusHistoryTable  # noqa
 from app.inbox.infrastructure.db_schem import IdempotencyKey  # noqa
 
 

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     DAYS_TO_KEEP: int = 7
     TTL_DAYS_IDM_KEYS: int = 7
 
+    K8S_SERVICE_NAME: str
+    K8S_NAMESPACE: str
+    K8S_SERVICE_PORT: str
+
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",
         extra="ignore",
@@ -46,6 +50,15 @@ class Settings(BaseSettings):
                 f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
                 f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DATABASE_NAME}"
             )
+
+    @property
+    def callback_url(self):
+        return (
+            f"http://"
+            f"{settings.K8S_SERVICE_NAME}."
+            f"{settings.K8S_NAMESPACE}.svc.cluster.local:"
+            f"{settings.K8S_SERVICE_PORT}"
+        )
 
 
 if os.getenv("DOCKER_ENV") == "true":

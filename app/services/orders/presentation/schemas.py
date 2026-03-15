@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -34,3 +36,11 @@ class ResponseOrderSchem(BaseModel):
             created_at=order.created_at,
             updated_at=order.updated_at,
         )
+
+
+class PaymentCallbackSchem(BaseModel):
+    payment_id: str
+    order_id: UUID
+    status: str  # "succeeded" или "failed"
+    amount: Decimal
+    error_message: Optional[str] = None
