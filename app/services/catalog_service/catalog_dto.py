@@ -12,8 +12,6 @@ class ItemDTO(BaseModel):
     name: str
     price: Decimal
     available_qty: int
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         extra = "ignore"
