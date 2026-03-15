@@ -1,6 +1,6 @@
-from app.orders.core.models import Order
-from app.orders.exceptions import OrderNotFoundError
-from app.orders.infrastructure.unit_of_work import UnitOfWork
+from app.services.core.models import Order
+from app.services.exceptions import OrderNotFoundError
+from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from uuid import UUID
 
 

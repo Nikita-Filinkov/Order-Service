@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 
 
 from app.database import Base
-from app.orders.core.models import OrderStatusEnum
+from app.services.core.models import OrderStatusEnum
 
 
 class OrderTable(Base):

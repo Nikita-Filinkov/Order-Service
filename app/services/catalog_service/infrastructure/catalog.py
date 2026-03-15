@@ -12,7 +12,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from app.orders.catalog_service.exceptions import (
+from app.services.catalog_service.exceptions import (
     ProviderTemporaryError,
     CatalogError,
     QuantityException,
@@ -20,7 +20,7 @@ from app.orders.catalog_service.exceptions import (
 )
 from app.config import settings
 from app.logger import logger
-from app.orders.core.models import Item
+from app.services.core.models import Item
 
 
 class CatalogClient:

@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.orders.infrastructure.repositories.repository import OrderRepository
+from app.services.orders.infrastructure.repositories.repository import OrderRepository
 from app.inbox.infrastructure.repository import IdempotencyRepository
 
 

@@ -7,11 +7,11 @@ from app.orders.catalog_service.infrastructure.catalog import CatalogClient
 async def main():
     catalog = CatalogClient()
     try:
-        result = await catalog.check_availability()
+        await catalog.check_availability()
+        result = await catalog.get_item_by_id(
+            item_id="0a4db214-e0e7-484e-9a9a-287546247b17"
+        )
         pprint(result)
-        # result = await catalog.get_item_by_id(
-        #     item_id="d4448252-3843-47cb-8ae2-509e603ce407"
-        # )
     finally:
         await catalog.close()
 

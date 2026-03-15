@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.orders.core.models import OrderStatusEnum, Order
+from app.services.core.models import OrderStatusEnum, Order
 
 
 class CreateOrderSchem(BaseModel):

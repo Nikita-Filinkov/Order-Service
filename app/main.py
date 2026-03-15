@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.handlers import register_exception_handlers
-from app.orders.infrastructure.container import Container
-from app.orders.presentation.routers import router
+from app.services.orders.infrastructure.container import Container
+from app.services.orders.presentation.routers import router
 
 
 @asynccontextmanager
@@ -17,7 +17,7 @@ container = Container()
 
 container.wire(
     modules=[
-        "app.orders.presentation.routers",
+        "app.services.orders.presentation.routers",
     ]
 )
 

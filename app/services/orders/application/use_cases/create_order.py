@@ -1,14 +1,14 @@
 from uuid import uuid4
 
-from app.orders.catalog_service.exceptions import (
+from app.services.catalog_service.exceptions import (
     ProviderTemporaryError,
     NotItemException,
     QuantityException,
 )
-from app.orders.core.models import Order, OrderStatusEnum
-from app.orders.infrastructure.unit_of_work import UnitOfWork
-from app.orders.presentation.schemas import CreateOrderSchem
-from app.orders.catalog_service.infrastructure.catalog import CatalogClient
+from app.services.core.models import Order, OrderStatusEnum
+from app.services.orders.infrastructure.unit_of_work import UnitOfWork
+from app.services.orders.presentation.schemas import CreateOrderSchem
+from app.services.catalog_service.infrastructure.catalog import CatalogClient
 
 
 class CreateOrderUseCase:

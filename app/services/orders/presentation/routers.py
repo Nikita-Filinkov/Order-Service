@@ -3,10 +3,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from dependency_injector.wiring import inject, Provide
 
-from app.orders.application.use_cases.get_order import GetOrderUseCase
-from app.orders.infrastructure.container import Container
-from app.orders.application.use_cases.create_order import CreateOrderUseCase
-from app.orders.presentation.schemas import CreateOrderSchem, ResponseOrderSchem
+from app.services.orders.application.use_cases.get_order import GetOrderUseCase
+from app.services.orders.infrastructure.container import Container
+from app.services.orders.application.use_cases.create_order import CreateOrderUseCase
+from app.services.orders.presentation.schemas import CreateOrderSchem, ResponseOrderSchem
 
 router = APIRouter()
 

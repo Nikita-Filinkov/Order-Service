@@ -2,8 +2,8 @@ import uuid
 
 from sqlalchemy import insert, select, update
 
-from app.orders.core.models import Order, Item, OrderStatusEnum
-from app.orders.infrastructure.db_schemes.db_schemes import (
+from app.services.core.models import Order, Item, OrderStatusEnum
+from app.services.orders.infrastructure.db_schemes.db_schemes import (
     OrderTable,
     OrderStatusHistoryTable,
 )

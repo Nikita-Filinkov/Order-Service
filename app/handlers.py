@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from app.orders.catalog_service.exceptions import (
+from app.services.catalog_service.exceptions import (
     NotItemException,
     QuantityException,
     ProviderTemporaryError,
 )
-from app.orders.exceptions import (
+from app.services.exceptions import (
     NotItemCatalogException,
     QuantityCatalogException,
     OrderNotRequestException,
