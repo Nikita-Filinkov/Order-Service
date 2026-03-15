@@ -64,7 +64,7 @@ class CreateOrderUseCase:
             status_history=[OrderStatusEnum.NEW],
         )
 
-        payment_callback_url = settings.callback_url + "/api/orders/payment-callback"
+        payment_callback_url = settings.external_callback_url
         logger.info(f"Sending payment callback URL: {payment_callback_url}")
         try:
             payment_dto = CreatePaymentRequest(
