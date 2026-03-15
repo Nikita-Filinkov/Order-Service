@@ -12,6 +12,7 @@ from tenacity import (
     wait_exponential,
 )
 
+from app.services.catalog_service.catalog_dto import ItemDTO
 from app.services.catalog_service.exceptions import (
     CatalogTemporaryError,
     CatalogError,
@@ -59,7 +60,7 @@ class CatalogClient:
         retry=retry_if_exception_type(ASYNC_RETRY_EXCEPTIONS),
         before_sleep=before_sleep_log(logger, logging.WARNING),
     )
-    async def get_item_by_id(self, item_id) -> Item:
+    async def get_item_by_id(self, item_id) -> ItemDTO:
         """Получение информации по товару по его id"""
         url = f"{self.base_url}/{item_id}"
         session = await self._get_session()
@@ -68,10 +69,11 @@ class CatalogClient:
                 status = resp.status
                 if status < 300:
                     item_data: dict = await resp.json()
-                    item = Item(
+                    item = ItemDTO(
                         id=item_data["id"],
                         name=item_data["name"],
                         price=item_data["price"],
+                        available_qty=item_data["item_data"]
                     )
                     return item
 
@@ -115,14 +117,19 @@ class CatalogClient:
     async def check_and_get(self, item_id, quantity) -> Item | None:
         """Проверка, что такое количество есть на складе"""
         try:
-            item = await self.get_item_by_id(item_id=item_id)
+            item_dto = await self.get_item_by_id(item_id=item_id)
         except (CatalogTemporaryError, NotItemException):
             raise
-        if quantity <= item.available_qty:
+        if quantity <= item_dto.available_qty:
+            item = Item(
+                id=item_dto.id,
+                name=item_dto.name,
+                price=item_dto.price,
+            )
             return item
         else:
             raise QuantityException(
-                message=f"Доступно в количестве:{item.available_qty}"
+                message=f"Доступно в количестве:{item_dto.available_qty}"
             )
 
     async def close(self):
