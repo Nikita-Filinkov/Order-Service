@@ -12,8 +12,12 @@ from tenacity import (
     wait_exponential,
 )
 
-from app.orders.catalog_service.catalog_dto import ItemDTO
-from app.orders.catalog_service.exceptions import ProviderTemporaryError, CatalogError
+from app.orders.catalog_service.exceptions import (
+    ProviderTemporaryError,
+    CatalogError,
+    QuantityException,
+    NotItemException,
+)
 from app.config import settings
 from app.logger import logger
 from app.orders.core.models import Item
@@ -67,9 +71,12 @@ class CatalogClient:
                     item = Item(
                         id=item_data["id"],
                         name=item_data["name"],
-                        price=item_data["price"]
+                        price=item_data["price"],
                     )
                     return item
+
+                if status == 404:
+                    raise NotItemException
 
                 if status in self.RETRY_STATUSES:
                     logger.warning(
@@ -77,15 +84,17 @@ class CatalogClient:
                     )
                     raise ProviderTemporaryError(status=status)
 
-                error_message = f"Ошибка каталога: статус {status}, причина {resp.reason}"
+                error_message = (
+                    f"Ошибка каталога: статус {status}, причина {resp.reason}"
+                )
                 logger.error(error_message)
                 raise CatalogError(status=status, message=error_message)
 
         except (ClientError, asyncio.TimeoutError, ConnectionError) as e:
-            message = "Ошибка при получить информацию по товару из Catalog Service"
-            logger.warning(
-                message, extra={"tries": self.MAX_RETRIES, "error": str(e)}
+            message = (
+                "Ошибка при попытке получить информацию по товару из Catalog Service"
             )
+            logger.warning(message, extra={"tries": self.MAX_RETRIES, "error": str(e)})
             raise ProviderTemporaryError(status=0, message=message)
 
     async def check_availability(self):
@@ -103,10 +112,18 @@ class CatalogClient:
             logger.error("Catalog Service не доступен")
             raise
 
-    async def check_available_qty(self, item_id, quantity) -> bool:
+    async def check_and_get(self, item_id, quantity) -> Item | None:
         """Проверка, что такое количество есть на складе"""
-        item = await self.get_item_by_id(item_id=item_id)
-        return quantity <= item.available_qty
+        try:
+            item = await self.get_item_by_id(item_id=item_id)
+        except (ProviderTemporaryError, NotItemException):
+            raise
+        if quantity <= item.available_qty:
+            return item
+        else:
+            raise QuantityException(
+                message=f"Доступно в количестве:{item.available_qty}"
+            )
 
     async def close(self):
         """Закрытие сессии"""

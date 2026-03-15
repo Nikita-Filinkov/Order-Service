@@ -24,8 +24,8 @@ async def create_order(
 @router.get("/api/orders{order_id}", response_model=ResponseOrderSchem)
 @inject
 async def get_order(
-        order_id: UUID,
-        use_case: GetOrderUseCase = Depends(Provide[Container.get_order_use_case]),
+    order_id: UUID,
+    use_case: GetOrderUseCase = Depends(Provide[Container.get_order_use_case]),
 ):
     order = await use_case(order_id)
     return ResponseOrderSchem.from_domain(order)

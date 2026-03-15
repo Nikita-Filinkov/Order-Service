@@ -1,13 +1,17 @@
 from uuid import uuid4
 
-from app.orders.core.models import Item, Order, OrderStatusEnum
+from app.orders.catalog_service.exceptions import (
+    ProviderTemporaryError,
+    NotItemException,
+    QuantityException,
+)
+from app.orders.core.models import Order, OrderStatusEnum
 from app.orders.infrastructure.unit_of_work import UnitOfWork
 from app.orders.presentation.schemas import CreateOrderSchem
 from app.orders.catalog_service.infrastructure.catalog import CatalogClient
 
 
 class CreateOrderUseCase:
-
     def __init__(self, unit_of_work: UnitOfWork, catalog_client: CatalogClient):
         self._unit_of_work = unit_of_work
         self.catalog_client = catalog_client
@@ -28,8 +32,10 @@ class CreateOrderUseCase:
                 )
                 return order
         try:
-            catalog_item: Item = await self.catalog_client.get_item_by_id(str(data_order.item_id))
-        except Exception:
+            catalog_item = await self.catalog_client.check_and_get(
+                str(data_order.item_id)
+            )
+        except (ProviderTemporaryError, NotItemException, QuantityException):
             raise
 
         items = [catalog_item]
@@ -46,7 +52,7 @@ class CreateOrderUseCase:
             saved_order = await uow.orders.add(order)
             await uow.inbox.save(
                 idempotency_key=str(idempotency_key),
-                response_data=saved_order.model_dump(mode='json'),
+                response_data=saved_order.model_dump(mode="json"),
             )
 
             await uow.commit()

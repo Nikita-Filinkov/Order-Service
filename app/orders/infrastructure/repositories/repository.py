@@ -1,5 +1,4 @@
 import uuid
-from typing import Type
 
 from sqlalchemy import insert, select, update
 
@@ -22,7 +21,7 @@ class OrderRepository:
         items_for_db = []
         for item in order.items:
             item_dict = item.model_dump()
-            item_dict['price'] = str(item_dict['price'])
+            item_dict["price"] = str(item_dict["price"])
             items_for_db.append(item_dict)
 
         stmt = (
@@ -74,15 +73,15 @@ class OrderRepository:
         status_history = [row.status for row in history_rows]
 
         order = Order(
-                id=order_row.id,
-                user_id=order_row.user_id,
-                items=items,
-                quantity=order_row.quantity,
-                status=order_row.status,
-                status_history=status_history,
-                created_at=order_row.created_at,
-                updated_at=order_row.updated_at,
-            )
+            id=order_row.id,
+            user_id=order_row.user_id,
+            items=items,
+            quantity=order_row.quantity,
+            status=order_row.status,
+            status_history=status_history,
+            created_at=order_row.created_at,
+            updated_at=order_row.updated_at,
+        )
         return order
 
     async def update_status(

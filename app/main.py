@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+
+from app.handlers import register_exception_handlers
 from app.orders.infrastructure.container import Container
 from app.orders.presentation.routers import router
 
@@ -9,6 +11,7 @@ from app.orders.presentation.routers import router
 async def lifespan(app: FastAPI):
     yield
     await container.catalog_client().close()
+
 
 container = Container()
 
@@ -20,5 +23,6 @@ container.wire(
 
 app = FastAPI()
 
-app.include_router(router, tags=["orders"])
+register_exception_handlers(app)
 
+app.include_router(router, tags=["orders"])

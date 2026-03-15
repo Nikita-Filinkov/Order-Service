@@ -19,9 +19,7 @@ class Container(containers.DeclarativeContainer):
     catalog_client = providers.Singleton(CatalogClient)
 
     create_order_use_case = providers.Factory(
-        CreateOrderUseCase,
-        unit_of_work=unit_of_work,
-        catalog_client=catalog_client
+        CreateOrderUseCase, unit_of_work=unit_of_work, catalog_client=catalog_client
     )
 
     get_order_use_case = providers.Factory(
