@@ -33,8 +33,8 @@ class PaymentClient:
 
     def __init__(self):
         self.api_key = settings.LMS_API_KEY
-        self.base_url = settings.PAYMENT_BASE_URL.rstrip("/")
-        self.headers = {"X-API-Key": self.api_key, "Content-Type": "application/json"}
+        self.base_url = settings.CAPASHINO_BASE_URL.rstrip("/")
+        self.headers = {"x-api-key": self.api_key}
         self._session: Optional[ClientSession] = None
 
     async def _get_session(self) -> ClientSession:
