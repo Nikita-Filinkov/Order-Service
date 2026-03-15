@@ -19,7 +19,7 @@ class OrderStatusEnum(StrEnum):
 class Item(BaseModel):
     """Value Object - товар в заказе"""
 
-    id: str
+    id: UUID
     name: str
     price: Decimal
 
