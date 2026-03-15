@@ -24,7 +24,10 @@ class Container(containers.DeclarativeContainer):
     payment_client = providers.Singleton(PaymentClient)
 
     create_order_use_case = providers.Factory(
-        CreateOrderUseCase, unit_of_work=unit_of_work, catalog_client=catalog_client, payment_client=payment_client
+        CreateOrderUseCase,
+        unit_of_work=unit_of_work,
+        catalog_client=catalog_client,
+        payment_client=payment_client,
     )
 
     get_order_use_case = providers.Factory(

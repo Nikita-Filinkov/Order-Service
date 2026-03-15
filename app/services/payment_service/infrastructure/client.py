@@ -32,7 +32,7 @@ class PaymentClient:
     RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
 
     def __init__(self):
-        self.api_key = settings.PAYMENT_API_KEY
+        self.api_key = settings.LMS_API_KEY
         self.base_url = settings.PAYMENT_BASE_URL.rstrip("/")
         self.headers = {"X-API-Key": self.api_key, "Content-Type": "application/json"}
         self._session: Optional[ClientSession] = None
