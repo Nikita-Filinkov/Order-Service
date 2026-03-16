@@ -38,7 +38,7 @@ class CreateOrderUseCase:
                 response_data = existing.response_data
 
                 order = Order(
-                    id=str(uuid4()),
+                    id=response_data["id"],
                     user_id=response_data["user_id"],
                     items=response_data["items"],
                     quantity=response_data["quantity"],
