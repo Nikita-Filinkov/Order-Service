@@ -31,7 +31,7 @@ class ResponseOrderSchem(BaseModel):
             id=order.id,
             user_id=order.user_id,
             quantity=order.quantity,
-            item_id=UUID(item.id) if item else None,
+            item_id=item.id if item else None,
             status=order.status,
             created_at=order.created_at,
             updated_at=order.updated_at,
