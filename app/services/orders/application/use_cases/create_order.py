@@ -12,7 +12,7 @@ from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import CreateOrderSchem
 from app.services.catalog_service.infrastructure.catalog import CatalogClient
 from app.config import settings
-from app.services.payment_service.dto import CreatePaymentRequest
+from app.services.payment_service.dto import CreatePaymentRequestDTO
 from app.services.payment_service.exceptions import PaymentTemporaryError, PaymentError
 from app.services.payment_service.infrastructure.client import PaymentClient
 
@@ -66,10 +66,11 @@ class CreateOrderUseCase:
 
         payment_callback_url = settings.external_callback_url
         logger.info(f"Sending payment callback URL: {payment_callback_url}")
+
         try:
-            payment_dto = CreatePaymentRequest(
+            payment_dto = CreatePaymentRequestDTO(
                 order_id=str(order.id),
-                amount=order.calculate_total(),
+                amount=str(order.calculate_total()),
                 callback_url=payment_callback_url,
                 idempotency_key=idempotency_key,
             )

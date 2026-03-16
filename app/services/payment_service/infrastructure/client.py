@@ -13,7 +13,7 @@ from tenacity import (
 
 from app.config import settings
 from app.logger import logger
-from app.services.payment_service.dto import CreatePaymentRequest, PaymentResponse
+from app.services.payment_service.dto import CreatePaymentRequestDTO, PaymentResponseDTO
 from app.services.payment_service.exceptions import PaymentTemporaryError, PaymentError
 
 
@@ -49,7 +49,7 @@ class PaymentClient:
         retry=retry_if_exception_type(ASYNC_RETRY_EXCEPTIONS),
         before_sleep=before_sleep_log(logger, logging.WARNING),
     )
-    async def create_payment(self, dto: CreatePaymentRequest) -> PaymentResponse:
+    async def create_payment(self, dto: CreatePaymentRequestDTO) -> PaymentResponseDTO:
         url = f"{self.base_url}/api/payments"
         session = await self._get_session()
         try:
@@ -59,7 +59,7 @@ class PaymentClient:
                 logger.error(f"Payment service error {status}: {response_text}")
                 if status < 300:
                     data = await resp.json()
-                    return PaymentResponse(**data)
+                    return PaymentResponseDTO(**data)
                 if status in self.RETRY_STATUSES:
                     raise PaymentTemporaryError(status=status)
                 raise PaymentError(status=status, message=response_text)

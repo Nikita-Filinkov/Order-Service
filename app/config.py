@@ -55,7 +55,7 @@ class Settings(BaseSettings):
 
     @property
     def external_callback_url(self):
-        return f"http://{self.EXTERNAL_DOMAIN}/api/orders/payment-callback"
+        return f"https://{self.EXTERNAL_DOMAIN}/api/orders/payment-callback"
 
 
 if os.getenv("DOCKER_ENV") == "true":
