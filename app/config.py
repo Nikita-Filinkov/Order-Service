@@ -20,8 +20,6 @@ class Settings(BaseSettings):
     MAX_RETRIES: int = 3
     BACKOFF_FACTOR: float = 0.5
 
-    EXTERNAL_DOMAIN: str
-
     CAPASHINO_BASE_URL: str = "https://capashino.dev-2.python-labs.ru"
     BATCH_SIZE_OUTBOX_TASKS: int = 10
     POLL_INTERVAL_OUTBOX: int = 5
@@ -54,8 +52,13 @@ class Settings(BaseSettings):
             )
 
     @property
-    def external_callback_url(self):
-        return f"https://{self.EXTERNAL_DOMAIN}/api/orders/payment-callback"
+    def callback_url(self):
+        return (
+            f"http://"
+            f"{self.K8S_SERVICE_NAME}."
+            f"{self.K8S_NAMESPACE}.svc:"
+            f"{self.K8S_SERVICE_PORT}"
+        )
 
 
 if os.getenv("DOCKER_ENV") == "true":
