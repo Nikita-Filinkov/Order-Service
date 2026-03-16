@@ -44,6 +44,8 @@ class CreateOrderUseCase:
                     quantity=response_data["quantity"],
                     status=response_data["status"],
                     status_history=response_data["status_history"],
+                    created_at=response_data["created_at"],
+                    updated_at=response_data["updated_at"],
                 )
                 return order
 

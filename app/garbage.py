@@ -9,7 +9,7 @@ async def main():
     try:
         await catalog.check_availability()
         result = await catalog.get_item_by_id(
-            item_id="0a4db214-e0e7-484e-9a9a-287546247b17"
+            item_id="67d6b0b0-cbc9-4570-bd4e-75594fcdda2e"
         )
         pprint(result)
     finally:
