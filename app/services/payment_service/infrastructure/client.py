@@ -53,10 +53,15 @@ class PaymentClient:
         url = f"{self.base_url}/api/payments"
         session = await self._get_session()
         try:
-            async with session.post(url, json=dto.model_dump(mode="json")) as resp:
+            request_data = dto.model_dump(mode="json")
+            async with session.post(url, json=request_data) as resp:
                 response_text = await resp.text()
                 status = resp.status
-                logger.error(f"Payment service error {status}: {response_text}")
+
+                logger.error(
+                    f"Payment service error {status}: {response_text}\nRequest data: {request_data}"
+                )
+
                 if status < 300:
                     data = await resp.json()
                     return PaymentResponseDTO(**data)

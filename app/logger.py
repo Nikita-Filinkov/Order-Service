@@ -5,7 +5,7 @@ from pythonjsonlogger.json import JsonFormatter
 
 from app.config import settings
 
-logger = logging.getLogger("aggregator")
+logger = logging.getLogger("Order Service")
 
 
 handler = logging.StreamHandler()
