@@ -28,6 +28,7 @@ class KafkaOutboxWorker:
     async def start(self):
         """Запускает worker"""
         self._running = True
+        logger.info("KafkaOutboxWorker worker start")
         while self._running:
             try:
                 await self._process_pending()
@@ -79,6 +80,7 @@ class KafkaOutboxWorker:
         event_payload = event.model_dump(mode="json")
 
         try:
+            logger.info(f"Sending to Kafka: {event_payload}")
             await self.kafka_producer.send(settings.KAFKA_ORDER_TOPIC, event_payload)
             await repo.mark_sent(outbox.id)
             logger.info(f"Outbox record {outbox.id} sent to Kafka")
