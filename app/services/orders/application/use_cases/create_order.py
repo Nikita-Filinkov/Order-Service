@@ -120,7 +120,7 @@ class CreateOrderUseCase:
                         order_id=str(saved_order.id),
                         status=OrderStatusEnum.CANCELLED.value(),
                         idempotency_key=f"notification_cancelled_{saved_order.id}",
-                        reason="Ошибка при попытке платежа"
+                        reason="Ошибка при попытке платежа",
                     )
                 )
 
