@@ -17,7 +17,7 @@ class KafkaConsumer:
             bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
             group_id=self.group_id,
             value_deserializer=lambda m: json.loads(m.decode()),
-            auto_offset_reset='earliest',
+            auto_offset_reset="earliest",
             enable_auto_commit=False,
         )
         await self.consumer.start()

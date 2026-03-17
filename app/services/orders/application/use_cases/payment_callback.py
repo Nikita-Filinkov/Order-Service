@@ -1,6 +1,11 @@
 from uuid import uuid4
 
-from app.services.core.models import OrderStatusEnum, EventTypeEnum, OutboxEvent
+from app.services.core.models import (
+    OrderStatusEnum,
+    EventTypeEnum,
+    OutboxEvent,
+    OutboxEventStatus,
+)
 from app.services.exceptions import WrongCallbackOrderId
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import PaymentCallbackSchem
@@ -35,13 +40,15 @@ class PaymentCallbackUseCase:
 
             if new_status == OrderStatusEnum.PAID:
                 event_type = EventTypeEnum.ORDER_PAID
+                outbox_event_status = OutboxEventStatus.PENDING
             else:
                 event_type = EventTypeEnum.ORDER_CANCELLED
+                outbox_event_status = OutboxEventStatus.PROCESSED
 
             outbox_event = OutboxEvent(
                 event_type=event_type,
                 payload=payload,
-                status=OrderStatusEnum.PAID,
+                status=outbox_event_status,
             )
 
             await uow.outbox.create(outbox_event)

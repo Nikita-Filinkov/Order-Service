@@ -58,6 +58,7 @@ class OutboxEventStatus(StrEnum):
     PENDING = "PENDING"
     SENT = "SENT"
     FAULT = "FAULT"
+    PROCESSED = "PROCESSED"
 
 
 class OutboxEvent(BaseModel):

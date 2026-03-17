@@ -18,7 +18,9 @@ class HandleShippingEventUseCase:
             idempotency_key = f"shipped_{event['shipment_id']}"
         elif event_type == "order.cancelled":
             payload_str = json.dumps(event, sort_keys=True)
-            idempotency_key = f"cancelled_{hashlib.sha256(payload_str.encode()).hexdigest()}"
+            idempotency_key = (
+                f"cancelled_{hashlib.sha256(payload_str.encode()).hexdigest()}"
+            )
         else:
             return
 

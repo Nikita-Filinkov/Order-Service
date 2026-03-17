@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     shipment_consumer = KafkaConsumer(
         topic=settings.KAFKA_SHIPMENT_TOPIC,
         group_id="order-service",
-        handler=handle_shipping_event
+        handler=handle_shipping_event,
     )
 
     await shipment_consumer.start()
