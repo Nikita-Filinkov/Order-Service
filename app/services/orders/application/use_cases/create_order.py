@@ -1,3 +1,4 @@
+import asyncio
 from uuid import uuid4
 
 from app.logger import logger
@@ -7,6 +8,10 @@ from app.services.catalog_service.exceptions import (
     QuantityException,
 )
 from app.services.core.models import Order, OrderStatusEnum, OutboxEvent, EventTypeEnum
+from app.services.notifications_service.application.tasks import (
+    send_status_notification,
+)
+from app.services.notifications_service.infrastructure.client import NotificationClient
 from app.services.orders.application.exceptions import PaymentCreationError
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import CreateOrderSchem
@@ -18,11 +23,14 @@ from app.services.payment_service.infrastructure.client import PaymentClient
 
 
 class CreateOrderUseCase:
+    """Класс для создания заказа"""
+
     def __init__(
         self,
         unit_of_work: UnitOfWork,
         catalog_client: CatalogClient,
         payment_client: PaymentClient,
+        notification_client: NotificationClient,
     ):
         self._unit_of_work = unit_of_work
         self.catalog_client = catalog_client
@@ -30,6 +38,7 @@ class CreateOrderUseCase:
         self.payment_callback_url = (
             settings.callback_url + "/api/orders/payment-callback"
         )
+        self.notification_client = notification_client
 
     async def __call__(self, data_order: CreateOrderSchem) -> Order:
 
@@ -96,7 +105,7 @@ class CreateOrderUseCase:
                 outbox_event = OutboxEvent(
                     event_type=EventTypeEnum.ORDER_CANCELLED,
                     payload=payload,
-                    status=OrderStatusEnum.PAID,
+                    status=OrderStatusEnum.CANCELLED,
                 )
 
                 await uow.inbox.save(
@@ -104,6 +113,16 @@ class CreateOrderUseCase:
                 )
                 await uow.outbox.create(outbox_event)
                 await uow.commit()
+
+                asyncio.create_task(
+                    send_status_notification(
+                        notification_client=self.notification_client,
+                        order_id=str(saved_order.id),
+                        status=OrderStatusEnum.CANCELLED.value(),
+                        idempotency_key=f"notification_new_{saved_order.id}",
+                    )
+                )
+
             raise PaymentCreationError("Ошибка при оплате")
 
         async with self._unit_of_work() as uow:
@@ -114,5 +133,13 @@ class CreateOrderUseCase:
             )
 
             await uow.commit()
+            asyncio.create_task(
+                send_status_notification(
+                    notification_client=self.notification_client,
+                    order_id=str(saved_order.id),
+                    status=OrderStatusEnum.NEW.value(),
+                    idempotency_key=f"notification_new_{saved_order.id}",
+                )
+            )
 
         return saved_order

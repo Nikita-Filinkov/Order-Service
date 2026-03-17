@@ -1,14 +1,24 @@
+import asyncio
 import hashlib
 import json
 from uuid import UUID
 from app.services.core.models import OrderStatusEnum
 from app.services.exceptions import OrderNotFoundError
+from app.services.notifications_service.application.tasks import (
+    send_status_notification,
+)
+from app.services.notifications_service.infrastructure.client import NotificationClient
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 
 
 class HandleShippingEventUseCase:
-    def __init__(self, unit_of_work: UnitOfWork):
+    """Класс для обработки событий от Shipping Service"""
+
+    def __init__(
+        self, unit_of_work: UnitOfWork, notification_client: NotificationClient
+    ):
         self._unit_of_work = unit_of_work
+        self.notification_client = notification_client
 
     async def execute(self, event: dict):
         event_type = event.get("event_type")
@@ -39,3 +49,11 @@ class HandleShippingEventUseCase:
 
             await uow.orders.update_status(order.id, new_status)
             await uow.commit()
+            asyncio.create_task(
+                send_status_notification(
+                    notification_client=self.notification_client,
+                    order_id=str(order.id),
+                    status=new_status,
+                    idempotency_key=f"notification_new_{idempotency_key}",
+                )
+            )

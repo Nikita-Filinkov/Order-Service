@@ -1,3 +1,4 @@
+import asyncio
 from uuid import uuid4
 
 from app.logger import logger
@@ -8,13 +9,20 @@ from app.services.core.models import (
     OutboxEventStatus,
 )
 from app.services.exceptions import WrongCallbackOrderId
+from app.services.notifications_service.application.tasks import (
+    send_status_notification,
+)
+from app.services.notifications_service.infrastructure.client import NotificationClient
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import PaymentCallbackSchem
 
 
 class PaymentCallbackUseCase:
-    def __init__(self, unit_of_work: UnitOfWork):
+    def __init__(
+        self, unit_of_work: UnitOfWork, notification_client: NotificationClient
+    ):
         self._unit_of_work = unit_of_work
+        self.notification_client = notification_client
 
     async def __call__(self, callback: PaymentCallbackSchem) -> dict:
         async with self._unit_of_work() as uow:
@@ -58,5 +66,13 @@ class PaymentCallbackUseCase:
 
             await uow.inbox.save(callback.payment_id, callback.model_dump(mode="json"))
             await uow.commit()
+            asyncio.create_task(
+                send_status_notification(
+                    notification_client=self.notification_client,
+                    order_id=str(order.id),
+                    status="NEW",
+                    idempotency_key=f"notification_new_{callback.payment_id}",
+                )
+            )
 
         return {"new_status": f"{new_status}"}

@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 from app.database import AsyncSessionLocal
+from app.services.notifications_service.infrastructure.client import NotificationClient
 from app.services.orders.application.use_cases.get_order import GetOrderUseCase
 from app.services.catalog_service.infrastructure.catalog import CatalogClient
 from app.services.orders.application.use_cases.handle_shipping_event import (
@@ -25,12 +26,14 @@ class Container(containers.DeclarativeContainer):
 
     catalog_client = providers.Singleton(CatalogClient)
     payment_client = providers.Singleton(PaymentClient)
+    notification_client = providers.Singleton(NotificationClient)
 
     create_order_use_case = providers.Factory(
         CreateOrderUseCase,
         unit_of_work=unit_of_work,
         catalog_client=catalog_client,
         payment_client=payment_client,
+        notification_client=notification_client,
     )
 
     get_order_use_case = providers.Factory(
@@ -41,9 +44,11 @@ class Container(containers.DeclarativeContainer):
     payment_callback_use_case = providers.Factory(
         PaymentCallbackUseCase,
         unit_of_work=unit_of_work,
+        notification_client=notification_client,
     )
 
     handle_shipping_event_use_case = providers.Factory(
         HandleShippingEventUseCase,
         unit_of_work=unit_of_work,
+        notification_client=notification_client,
     )
