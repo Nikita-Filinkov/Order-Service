@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.logger import logger
 from app.services.core.models import (
     OrderStatusEnum,
     EventTypeEnum,
@@ -50,7 +51,7 @@ class PaymentCallbackUseCase:
                 payload=payload,
                 status=outbox_event_status,
             )
-
+            logger.info(f"Created new outbox_event: {outbox_event.model_dump()}")
             await uow.outbox.create(outbox_event)
 
             await uow.orders.update_status(order.id, new_status)

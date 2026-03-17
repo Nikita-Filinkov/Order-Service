@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.logger import logger
 from app.outbox.infrastructure.db_schem import OutboxTable, OutboxStatus
 from app.services.core.models import OutboxEvent
 
@@ -20,6 +21,7 @@ class OutboxRepository:
         )
         self.session.add(outbox)
         await self.session.flush()
+        logger.info(f"New entry outbox: {outbox.event_type}, status{outbox.status}")
         return outbox
 
     async def get_pending(self, limit: int = 10) -> Sequence[OutboxTable]:
