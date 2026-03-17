@@ -6,7 +6,7 @@ from app.services.catalog_service.exceptions import (
     NotItemException,
     QuantityException,
 )
-from app.services.core.models import Order, OrderStatusEnum
+from app.services.core.models import Order, OrderStatusEnum, OutboxEvent, EventTypeEnum
 from app.services.orders.application.exceptions import PaymentCreationError
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import CreateOrderSchem
@@ -27,6 +27,9 @@ class CreateOrderUseCase:
         self._unit_of_work = unit_of_work
         self.catalog_client = catalog_client
         self.payment_client = payment_client
+        self.payment_callback_url = (
+            settings.callback_url + "/api/orders/payment-callback"
+        )
 
     async def __call__(self, data_order: CreateOrderSchem) -> Order:
 
@@ -66,25 +69,40 @@ class CreateOrderUseCase:
             status_history=[OrderStatusEnum.NEW],
         )
 
-        payment_callback_url = settings.callback_url + "/api/orders/payment-callback"
-        logger.info(f"Sending payment callback URL: {payment_callback_url}")
-
         try:
             payment_dto = CreatePaymentRequestDTO(
                 order_id=str(order.id),
                 amount=str(order.calculate_total()),
-                callback_url=payment_callback_url,
+                callback_url=self.payment_callback_url,
                 idempotency_key=idempotency_key,
             )
+            logger.info(f"Sending payment callback URL: {self.payment_callback_url}")
             await self.payment_client.create_payment(payment_dto)
+
         except (PaymentTemporaryError, PaymentError):
             order.status = OrderStatusEnum.CANCELLED
             order.status_history.append(OrderStatusEnum.CANCELLED)
+
             async with self._unit_of_work() as uow:
                 saved_order = await uow.orders.add(order)
+
+                payload = {
+                    "order_id": str(saved_order.id),
+                    "item_id": str(saved_order.items[0].id),
+                    "quantity": saved_order.quantity,
+                    "idempotency_key": idempotency_key,
+                }
+
+                outbox_event = OutboxEvent(
+                    event_type=EventTypeEnum.ORDER_CANCELLED,
+                    payload=payload,
+                    status=OrderStatusEnum.PAID,
+                )
+
                 await uow.inbox.save(
                     idempotency_key, saved_order.model_dump(mode="json")
                 )
+                await uow.outbox.create(outbox_event)
                 await uow.commit()
             raise PaymentCreationError("Ошибка при оплате")
 

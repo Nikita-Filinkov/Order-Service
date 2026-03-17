@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_PORT: int
     POSTGRES_USER: Optional[str] = None
-
     POSTGRES_CONNECTION_STRING: Optional[str] = None
 
     MAX_RETRIES: int = 3
@@ -30,6 +29,14 @@ class Settings(BaseSettings):
     K8S_SERVICE_NAME: str
     K8S_NAMESPACE: str
     K8S_SERVICE_PORT: str
+
+    KAFKA_BOOTSTRAP_SERVERS: str = "kafka.kafka.svc.cluster.local:9092"
+    KAFKA_ORDER_TOPIC: str = "student_system-order.events"
+    KAFKA_SHIPMENT_TOPIC: str = "student_system-shipment.events"
+    OUTBOX_BATCH_SIZE: int = 10
+    OUTBOX_POLL_INTERVAL: int = 5
+    OUTBOX_MAX_RETRIES: int = 5
+    OUTBOX_DAYS_TO_KEEP: int = 7
 
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",

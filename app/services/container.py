@@ -2,6 +2,7 @@ from dependency_injector import containers, providers
 from app.database import AsyncSessionLocal
 from app.services.orders.application.use_cases.get_order import GetOrderUseCase
 from app.services.catalog_service.infrastructure.catalog import CatalogClient
+from app.services.orders.application.use_cases.handle_shipping_event import HandleShippingEventUseCase
 from app.services.orders.application.use_cases.payment_callback import (
     PaymentCallbackUseCase,
 )
@@ -37,5 +38,10 @@ class Container(containers.DeclarativeContainer):
 
     payment_callback_use_case = providers.Factory(
         PaymentCallbackUseCase,
+        unit_of_work=unit_of_work,
+    )
+
+    handle_shipping_event_use_case = providers.Factory(
+        HandleShippingEventUseCase,
         unit_of_work=unit_of_work,
     )

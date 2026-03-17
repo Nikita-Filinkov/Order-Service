@@ -46,9 +46,10 @@ class Order(BaseModel):
 
 
 class EventTypeEnum(StrEnum):
-    ORDER_CREATED = "ORDER.CREATED"
-    ORDER_PAID = "ORDER.PAID"
-    ORDER_SHIPPED = "ORDER.SHIPPED"
+    ORDER_CREATED = "order.created"
+    ORDER_PAID = "order.paid"
+    ORDER_SHIPPED = "order.shipped"
+    ORDER_CANCELLED = "order.cancelled"
 
 
 class OutboxEventStatus(StrEnum):
@@ -62,8 +63,6 @@ class OutboxEventStatus(StrEnum):
 class OutboxEvent(BaseModel):
     """Событие для публикации"""
 
-    id: str
     event_type: EventTypeEnum
     payload: dict
     status: OutboxEventStatus
-    created_at: datetime

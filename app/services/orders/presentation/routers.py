@@ -7,7 +7,7 @@ from app.services.orders.application.use_cases.get_order import GetOrderUseCase
 from app.services.orders.application.use_cases.payment_callback import (
     PaymentCallbackUseCase,
 )
-from app.services.orders.infrastructure.container import Container
+from app.services.container import Container
 from app.services.orders.application.use_cases.create_order import CreateOrderUseCase
 from app.services.orders.presentation.schemas import (
     CreateOrderSchem,

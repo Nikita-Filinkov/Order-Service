@@ -13,6 +13,7 @@ from app.config import settings
 from app.database import Base
 from app.services.orders.infrastructure.db_schemes.db_schemes import OrderTable  # noqa
 from app.inbox.infrastructure.db_schem import IdempotencyKey  # noqa
+from app.outbox.infrastructure.db_schem import OutboxTable  # noqa
 
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))

@@ -1,4 +1,6 @@
-from app.services.core.models import OrderStatusEnum
+from uuid import uuid4
+
+from app.services.core.models import OrderStatusEnum, EventTypeEnum, OutboxEvent
 from app.services.exceptions import WrongCallbackOrderId
 from app.services.orders.infrastructure.unit_of_work import UnitOfWork
 from app.services.orders.presentation.schemas import PaymentCallbackSchem
@@ -12,7 +14,7 @@ class PaymentCallbackUseCase:
         async with self._unit_of_work() as uow:
             existing = await uow.inbox.get(callback.payment_id)
             if existing:
-                return {"status": "already_processed"}
+                return {"in_progres": f"{existing.response_data}"}
 
             order = await uow.orders.get_order(callback.order_id)
             if not order:
@@ -24,9 +26,29 @@ class PaymentCallbackUseCase:
                 else OrderStatusEnum.CANCELLED
             )
 
+            payload = {
+                "order_id": str(order.id),
+                "item_id": str(order.items[0].id),
+                "quantity": order.quantity,
+                "idempotency_key": str(uuid4()),
+            }
+
+            if new_status == OrderStatusEnum.PAID:
+                event_type = EventTypeEnum.ORDER_PAID
+            else:
+                event_type = EventTypeEnum.ORDER_CANCELLED
+
+            outbox_event = OutboxEvent(
+                event_type=event_type,
+                payload=payload,
+                status=OrderStatusEnum.PAID,
+            )
+
+            await uow.outbox.create(outbox_event)
+
             await uow.orders.update_status(order.id, new_status)
 
             await uow.inbox.save(callback.payment_id, callback.model_dump(mode="json"))
             await uow.commit()
 
-        return {"status": "ok"}
+        return {"new_status": f"{new_status}"}

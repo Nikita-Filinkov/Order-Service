@@ -15,7 +15,7 @@ class OutboxStatus(str, enum.Enum):
     FAILED = "failed"
 
 
-class Outbox(Base):
+class OutboxTable(Base):
     __tablename__ = "outbox"
 
     id: Mapped[uuid.UUID] = mapped_column(
