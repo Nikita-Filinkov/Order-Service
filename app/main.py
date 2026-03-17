@@ -7,6 +7,7 @@ from app.config import settings
 from app.handlers import register_exception_handlers
 from app.kafka.infrastructure.kafka_consumer import KafkaConsumer
 from app.kafka.infrastructure.kafka_producer import KafkaProducer
+from app.logger import logger
 from app.outbox.application.usecases.kafka_worker import KafkaOutboxWorker
 from app.services.container import Container
 from app.services.orders.presentation.routers import router
@@ -17,7 +18,7 @@ async def lifespan(app: FastAPI):
 
     kafka_producer = KafkaProducer()
     await kafka_producer.start()
-
+    logger.info("Kafka producer started (confirmed)")
     outbox_worker = KafkaOutboxWorker(kafka_producer=kafka_producer)
     asyncio.create_task(outbox_worker.start())
 
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
 
     await shipment_consumer.start()
     asyncio.create_task(shipment_consumer.run())
+    logger.info("Outbox worker task created")
 
     yield
     await container.catalog_client().close()
