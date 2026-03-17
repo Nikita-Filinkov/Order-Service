@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     K8S_NAMESPACE: str
     K8S_SERVICE_PORT: str
 
-    KAFKA_BOOTSTRAP_SERVERS: str = "kafka.kafka.svc.cluster.local:9092"
-    KAFKA_ORDER_TOPIC: str = "student_system-order.events"
-    KAFKA_SHIPMENT_TOPIC: str = "student_system-shipment.events"
+    KAFKA_BOOTSTRAP_SERVERS: str
+    KAFKA_ORDER_TOPIC: str
+    KAFKA_SHIPMENT_TOPIC: str
+
     OUTBOX_BATCH_SIZE: int = 10
     OUTBOX_POLL_INTERVAL: int = 5
     OUTBOX_MAX_RETRIES: int = 5
