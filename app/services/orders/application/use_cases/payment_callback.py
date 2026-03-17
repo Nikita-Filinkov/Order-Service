@@ -70,8 +70,8 @@ class PaymentCallbackUseCase:
                 send_status_notification(
                     notification_client=self.notification_client,
                     order_id=str(order.id),
-                    status="NEW",
-                    idempotency_key=f"notification_new_{callback.payment_id}",
+                    status=new_status,
+                    idempotency_key=f"notification_{new_status.value().lower()}_{callback.payment_id}",
                 )
             )
 

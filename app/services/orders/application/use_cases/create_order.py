@@ -119,7 +119,8 @@ class CreateOrderUseCase:
                         notification_client=self.notification_client,
                         order_id=str(saved_order.id),
                         status=OrderStatusEnum.CANCELLED.value(),
-                        idempotency_key=f"notification_new_{saved_order.id}",
+                        idempotency_key=f"notification_cancelled_{saved_order.id}",
+                        reason="Ошибка при попытке платежа"
                     )
                 )
 

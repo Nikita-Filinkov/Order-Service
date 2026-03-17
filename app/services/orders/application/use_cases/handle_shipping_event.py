@@ -45,6 +45,7 @@ class HandleShippingEventUseCase:
             if event_type == "order.shipped":
                 new_status = OrderStatusEnum.SHIPPED
             elif event_type == "order.cancelled":
+                reason = event.get("reason")
                 new_status = OrderStatusEnum.CANCELLED
 
             await uow.orders.update_status(order.id, new_status)
@@ -54,6 +55,7 @@ class HandleShippingEventUseCase:
                     notification_client=self.notification_client,
                     order_id=str(order.id),
                     status=new_status,
-                    idempotency_key=f"notification_new_{idempotency_key}",
+                    idempotency_key=f"notification_{new_status.value().lower()}_{idempotency_key}",
+                    reason=reason
                 )
             )
