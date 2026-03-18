@@ -49,7 +49,7 @@ container.wire(
     ]
 )
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 register_exception_handlers(app)
 
