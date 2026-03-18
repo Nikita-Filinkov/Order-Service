@@ -138,7 +138,7 @@ class CreateOrderUseCase:
                 send_status_notification(
                     notification_client=self.notification_client,
                     order_id=str(saved_order.id),
-                    status=OrderStatusEnum.NEW.value(),
+                    status=OrderStatusEnum.NEW,
                     idempotency_key=f"notification_new_{saved_order.id}",
                 )
             )
