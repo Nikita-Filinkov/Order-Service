@@ -25,7 +25,7 @@ async def send_status_notification(
         return
 
     dto = SendNotificationRequestDTO(
-        message=message,
+        message=status,
         reference_id=order_id,
         idempotency_key=idempotency_key,
     )
