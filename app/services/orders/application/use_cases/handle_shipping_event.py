@@ -36,7 +36,7 @@ class HandleShippingEventUseCase:
 
         async with self._unit_of_work() as uow:
             existing = await uow.inbox.get(idempotency_key)
-            if not existing:
+            if existing:
                 return
             order = await uow.orders.get_order(order_id)
             if not order:
@@ -49,7 +49,9 @@ class HandleShippingEventUseCase:
                 new_status = OrderStatusEnum.CANCELLED
 
             await uow.orders.update_status(order.id, new_status)
+            await uow.inbox.save(idempotency_key, response_data={})
             await uow.commit()
+
             asyncio.create_task(
                 send_status_notification(
                     notification_client=self.notification_client,
