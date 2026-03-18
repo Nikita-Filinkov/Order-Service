@@ -81,18 +81,19 @@ class NotificationClient:
                 elif status == 401:
                     logger.error(f"invalid X-API-Key: {status} - {await resp.text()}")
                     raise WrongApiKeyNotificationException
-
                 elif status == 409:
                     logger.error(
                         f"There is already a notification with this idempotency_key: {status} - {await resp.text()}"
                     )
                     raise ExistsNotificationException
-
                 elif status >= 500:
                     logger.error(
-                        f"Error on the notification service side: {status} - {await resp.text()}"
+                        f"Error on the notification service side: {status} - {response_text}"
                     )
-                    raise NotificationServiceErrorException(status=status, message=response_text)
+
+                    raise NotificationTemporaryError(
+                        status=status, message=response_text
+                    )
 
                 else:
                     logger.error(f"Capashino error: {status} - {await resp.text()}")
