@@ -42,10 +42,10 @@ class HandleShippingEventUseCase:
             if not order:
                 raise OrderNotFoundError
 
+            reason = event.get("reason")
             if event_type == "order.shipped":
                 new_status = OrderStatusEnum.SHIPPED
             elif event_type == "order.cancelled":
-                reason = event.get("reason")
                 new_status = OrderStatusEnum.CANCELLED
 
             await uow.orders.update_status(order.id, new_status)

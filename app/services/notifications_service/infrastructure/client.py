@@ -20,7 +20,6 @@ from app.services.notifications_service.exceptions import (
     BadRequestNotificationException,
     WrongApiKeyNotificationException,
     ExistsNotificationException,
-    NotificationServiceErrorException,
     UnexpectedNotificationError,
     NotificationTemporaryError,
 )
