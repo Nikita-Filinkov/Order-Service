@@ -70,7 +70,7 @@ class KafkaOutboxWorker:
             return
 
         event = ProducePaidEventDTO(
-            event_type=outbox.payload["event_type"],
+            event_type=outbox.event_type,
             order_id=outbox.payload["order_id"],
             item_id=outbox.payload["item_id"],
             quantity=outbox.payload["quantity"],

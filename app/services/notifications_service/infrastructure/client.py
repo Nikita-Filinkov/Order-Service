@@ -92,7 +92,7 @@ class NotificationClient:
                     logger.error(
                         f"Error on the notification service side: {status} - {await resp.text()}"
                     )
-                    raise NotificationServiceErrorException
+                    raise NotificationServiceErrorException(status=status, message=response_text)
 
                 else:
                     logger.error(f"Capashino error: {status} - {await resp.text()}")
