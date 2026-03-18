@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/mini_redis/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (OrderService)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (Order-Service) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

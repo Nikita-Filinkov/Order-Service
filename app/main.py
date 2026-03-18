@@ -15,7 +15,7 @@ from app.services.orders.presentation.routers import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
+    logger.info("Lifespan start")
     kafka_producer = KafkaProducer()
     await kafka_producer.start()
     logger.info("Kafka producer started (confirmed)")
