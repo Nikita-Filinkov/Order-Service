@@ -55,7 +55,7 @@ class HandleShippingEventUseCase:
                     notification_client=self.notification_client,
                     order_id=str(order.id),
                     status=new_status,
-                    idempotency_key=f"notification_{new_status.value().lower()}_{idempotency_key}",
+                    idempotency_key=f"notification_{new_status}_{idempotency_key}",
                     reason=reason,
                 )
             )
