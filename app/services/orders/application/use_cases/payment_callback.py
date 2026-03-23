@@ -2,6 +2,7 @@ import asyncio
 from uuid import uuid4
 
 from app.logger import logger
+from app.metics.metrics import orders_paid_total, orders_cancelled_total
 from app.services.core.models import (
     OrderStatusEnum,
     EventTypeEnum,
@@ -66,6 +67,12 @@ class PaymentCallbackUseCase:
 
             await uow.inbox.save(callback.payment_id, callback.model_dump(mode="json"))
             await uow.commit()
+
+            if new_status == OrderStatusEnum.PAID:
+                orders_paid_total.inc()
+            else:
+                orders_cancelled_total.inc()
+
             asyncio.create_task(
                 send_status_notification(
                     notification_client=self.notification_client,

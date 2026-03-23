@@ -2,12 +2,14 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.config import settings
 from app.handlers import register_exception_handlers
 from app.kafka.infrastructure.kafka_consumer import KafkaConsumer
 from app.kafka.infrastructure.kafka_producer import KafkaProducer
 from app.logger import logger
+from app.metics.metric_workers import update_orders_gauge
 from app.outbox.application.usecases.kafka_worker import KafkaOutboxWorker
 from app.services.container import Container
 from app.services.orders.presentation.routers import router
@@ -37,6 +39,9 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(shipment_consumer.run())
     logger.info("Outbox worker task created")
 
+    asyncio.create_task(update_orders_gauge())
+    logger.info("Metric worker current by status was started")
+
     yield
     await container.catalog_client().close()
 
@@ -50,6 +55,15 @@ container.wire(
 )
 
 app = FastAPI(lifespan=lifespan)
+
+instrumentator = Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    should_respect_env_var=True,
+    env_var_name="ENABLE_METRICS",
+)
+
+instrumentator.instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 register_exception_handlers(app)
 

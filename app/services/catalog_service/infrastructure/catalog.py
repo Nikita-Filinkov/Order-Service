@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from pprint import pprint
 from typing import Optional
 
@@ -12,6 +13,7 @@ from tenacity import (
     wait_exponential,
 )
 
+from app.metics.metrics import catalog_requests_total, catalog_request_duration
 from app.services.catalog_service.catalog_dto import ItemDTO
 from app.services.catalog_service.exceptions import (
     CatalogTemporaryError,
@@ -62,6 +64,7 @@ class CatalogClient:
     )
     async def get_item_by_id(self, item_id) -> ItemDTO:
         """Получение информации по товару по его id"""
+        start = time.time()
         url = f"{self.base_url}/{item_id}"
         session = await self._get_session()
         try:
@@ -75,9 +78,11 @@ class CatalogClient:
                         price=item_data["price"],
                         available_qty=item_data["available_qty"],
                     )
+                    catalog_requests_total.labels(endpoint=url, status=str(status)).inc()
                     return item
 
                 if status == 404:
+                    catalog_requests_total.labels(endpoint=url, status=str(status)).inc()
                     raise NotItemException
 
                 if status in self.RETRY_STATUSES:
@@ -90,6 +95,7 @@ class CatalogClient:
                     f"Ошибка каталога: статус {status}, причина {resp.reason}"
                 )
                 logger.error(error_message)
+                catalog_requests_total.labels(endpoint=url, status="error").inc()
                 raise CatalogError(status=status, message=error_message)
 
         except (ClientError, asyncio.TimeoutError, ConnectionError) as e:
@@ -97,7 +103,11 @@ class CatalogClient:
                 "Ошибка при попытке получить информацию по товару из Catalog Service"
             )
             logger.warning(message, extra={"tries": self.MAX_RETRIES, "error": str(e)})
+            catalog_requests_total.labels(endpoint=url, status="temporary_error").inc()
             raise CatalogTemporaryError(status=0, message=message)
+        finally:
+            duration = time.time() - start
+            catalog_request_duration.labels(endpoint=url).observe(duration)
 
     async def check_availability(self):
         """Проверка доступности API"""

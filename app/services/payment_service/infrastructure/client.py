@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from typing import Optional
 
 from aiohttp import ClientSession, ClientTimeout, ClientError
@@ -13,6 +14,7 @@ from tenacity import (
 
 from app.config import settings
 from app.logger import logger
+from app.metics.metrics import payment_requests_total, payment_request_duration
 from app.services.payment_service.dto import CreatePaymentRequestDTO, PaymentResponseDTO
 from app.services.payment_service.exceptions import PaymentTemporaryError, PaymentError
 
@@ -50,6 +52,7 @@ class PaymentClient:
         before_sleep=before_sleep_log(logger, logging.WARNING),
     )
     async def create_payment(self, dto: CreatePaymentRequestDTO) -> PaymentResponseDTO:
+        start = time.time()
         url = f"{self.base_url}/api/payments"
         session = await self._get_session()
         try:
@@ -64,12 +67,17 @@ class PaymentClient:
 
                 if status < 300:
                     data = await resp.json()
+                    payment_requests_total.labels(endpoint=url, status=str(status)).inc()
                     return PaymentResponseDTO(**data)
                 if status in self.RETRY_STATUSES:
                     raise PaymentTemporaryError(status=status)
                 raise PaymentError(status=status, message=response_text)
         except (ClientError, asyncio.TimeoutError):
+            payment_requests_total.labels(endpoint=url, status="payment_temporary_error").inc()
             raise PaymentTemporaryError(status=0)
+        finally:
+            duration = time.time() - start
+            payment_request_duration.labels(endpoint=url).observe(duration)
 
     async def close(self):
         if self._session:

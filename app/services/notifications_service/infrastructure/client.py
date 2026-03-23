@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from typing import Optional
 from aiohttp import ClientSession, ClientTimeout, ClientError
 from tenacity import (
@@ -12,6 +13,7 @@ from tenacity import (
 
 from app.config import settings
 from app.logger import logger
+from app.metics.metrics import notification_requests_total, notification_request_duration
 from app.services.notifications_service.dto import (
     SendNotificationRequestDTO,
     NotificationResponseDTO,
@@ -63,6 +65,7 @@ class NotificationClient:
     async def send_notification(
         self, dto: SendNotificationRequestDTO
     ) -> NotificationResponseDTO:
+        start = time.time()
         session = await self._get_session()
         try:
             async with session.post(
@@ -73,23 +76,27 @@ class NotificationClient:
 
                 if status < 300:
                     data = await resp.json()
+                    notification_requests_total.labels(endpoint=self.base_url, status=str(status)).inc()
                     return NotificationResponseDTO(**data)
                 elif status == 400:
                     logger.error(f"Dont valid body: {status} - {response_text}")
+                    notification_requests_total.labels(endpoint=self.base_url, status=str(status)).inc()
                     raise BadRequestNotificationException
                 elif status == 401:
                     logger.error(f"invalid X-API-Key: {status} - {await resp.text()}")
+                    notification_requests_total.labels(endpoint=self.base_url, status=str(status)).inc()
                     raise WrongApiKeyNotificationException
                 elif status == 409:
                     logger.error(
                         f"There is already a notification with this idempotency_key: {status} - {await resp.text()}"
                     )
+                    notification_requests_total.labels(endpoint=self.base_url, status=str(status)).inc()
                     raise ExistsNotificationException
                 elif status >= 500:
                     logger.error(
                         f"Error on the notification service side: {status} - {response_text}"
                     )
-
+                    notification_requests_total.labels(endpoint=self.base_url, status=str(status)).inc()
                     raise NotificationTemporaryError(
                         status=status, message=response_text
                     )
@@ -103,7 +110,11 @@ class NotificationClient:
                 raise NotificationTemporaryError(status=status, message=response_text)
 
         except (ClientError, asyncio.TimeoutError) as e:
+            notification_requests_total.labels(endpoint=self.base_url, status="notification temporary error").inc()
             raise NotificationTemporaryError(status=0, message=str(e))
+        finally:
+            duration = time.time() - start
+            notification_request_duration.labels(endpoint=self.base_url).observe(duration)
 
     async def close(self):
         if self._session:

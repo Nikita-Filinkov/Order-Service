@@ -11,6 +11,8 @@ dependencies = [
     "asyncpg>=0.31.0",
     "dependency-injector>=4.48.3",
     "fastapi>=0.135.1",
+    "prometheus-client",
+    "prometheus-fastapi-instrumentator",
     "pydantic-settings>=2.13.1",
     "python-json-logger>=4.0.0",
     "ruff>=0.15.6",

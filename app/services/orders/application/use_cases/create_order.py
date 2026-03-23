@@ -2,6 +2,7 @@ import asyncio
 from uuid import uuid4
 
 from app.logger import logger
+from app.metics.metrics import orders_created_total
 from app.services.catalog_service.exceptions import (
     CatalogTemporaryError,
     NotItemException,
@@ -134,6 +135,8 @@ class CreateOrderUseCase:
             )
 
             await uow.commit()
+            orders_created_total.inc()
+
             asyncio.create_task(
                 send_status_notification(
                     notification_client=self.notification_client,

@@ -2,6 +2,8 @@ import asyncio
 import hashlib
 import json
 from uuid import UUID
+
+from app.metics.metrics import orders_shipped_total
 from app.services.core.models import OrderStatusEnum
 from app.services.exceptions import OrderNotFoundError
 from app.services.notifications_service.application.tasks import (
@@ -50,7 +52,10 @@ class HandleShippingEventUseCase:
 
             await uow.orders.update_status(order.id, new_status)
             await uow.inbox.save(idempotency_key, response_data={})
+
             await uow.commit()
+            if new_status == OrderStatusEnum.SHIPPED:
+                orders_shipped_total.inc()
 
             asyncio.create_task(
                 send_status_notification(
