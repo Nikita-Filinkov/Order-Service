@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi.responses import Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from app.config import settings
 from app.handlers import register_exception_handlers
@@ -63,8 +65,13 @@ instrumentator = Instrumentator(
     env_var_name="ENABLE_METRICS",
 )
 
-instrumentator.instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+instrumentator.instrument(app)
 
 register_exception_handlers(app)
 
 app.include_router(router, tags=["orders"])
+
+
+@app.get("/metrics", include_in_schema=False)
+async def get_metrics():
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
