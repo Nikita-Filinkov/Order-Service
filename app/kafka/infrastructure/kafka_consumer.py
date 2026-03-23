@@ -4,8 +4,11 @@ import time
 from aiokafka import AIOKafkaConsumer
 from app.config import settings
 from app.logger import logger
-from app.metics.metrics import kafka_consume_processing_duration_seconds, kafka_messages_consumed_total, \
-    kafka_consume_errors_total
+from app.metics.metrics import (
+    kafka_consume_processing_duration_seconds,
+    kafka_messages_consumed_total,
+    kafka_consume_errors_total,
+)
 
 
 class KafkaConsumer:
@@ -41,10 +44,14 @@ class KafkaConsumer:
                 kafka_messages_consumed_total.labels(topic=topic).inc()
             except Exception as e:
                 error_type = type(e).__name__
-                kafka_consume_errors_total.labels(topic=topic, error_type=error_type).inc()
+                kafka_consume_errors_total.labels(
+                    topic=topic, error_type=error_type
+                ).inc()
                 logger.error(f"Error processing message: {e}")
                 continue
             finally:
                 duration = time.time() - start
-                kafka_consume_processing_duration_seconds.labels(topic=topic, event_type=event_type).observe(duration)
+                kafka_consume_processing_duration_seconds.labels(
+                    topic=topic, event_type=event_type
+                ).observe(duration)
             await self.consumer.commit()

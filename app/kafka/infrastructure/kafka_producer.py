@@ -4,7 +4,10 @@ import time
 from aiokafka import AIOKafkaProducer
 from app.config import settings
 from app.logger import logger
-from app.metics.metrics import kafka_messages_produced_total, kafka_produce_duration_seconds
+from app.metics.metrics import (
+    kafka_messages_produced_total,
+    kafka_produce_duration_seconds,
+)
 
 
 class KafkaProducer:

@@ -67,13 +67,17 @@ class PaymentClient:
 
                 if status < 300:
                     data = await resp.json()
-                    payment_requests_total.labels(endpoint=url, status=str(status)).inc()
+                    payment_requests_total.labels(
+                        endpoint=url, status=str(status)
+                    ).inc()
                     return PaymentResponseDTO(**data)
                 if status in self.RETRY_STATUSES:
                     raise PaymentTemporaryError(status=status)
                 raise PaymentError(status=status, message=response_text)
         except (ClientError, asyncio.TimeoutError):
-            payment_requests_total.labels(endpoint=url, status="payment_temporary_error").inc()
+            payment_requests_total.labels(
+                endpoint=url, status="payment_temporary_error"
+            ).inc()
             raise PaymentTemporaryError(status=0)
         finally:
             duration = time.time() - start

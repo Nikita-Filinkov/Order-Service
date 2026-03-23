@@ -78,11 +78,15 @@ class CatalogClient:
                         price=item_data["price"],
                         available_qty=item_data["available_qty"],
                     )
-                    catalog_requests_total.labels(endpoint=url, status=str(status)).inc()
+                    catalog_requests_total.labels(
+                        endpoint=url, status=str(status)
+                    ).inc()
                     return item
 
                 if status == 404:
-                    catalog_requests_total.labels(endpoint=url, status=str(status)).inc()
+                    catalog_requests_total.labels(
+                        endpoint=url, status=str(status)
+                    ).inc()
                     raise NotItemException
 
                 if status in self.RETRY_STATUSES:
