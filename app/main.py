@@ -1,10 +1,12 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.responses import Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from app.config import settings
 from app.handlers import register_exception_handlers
@@ -55,8 +57,18 @@ container.wire(
         "app.services.orders.presentation.routers",
     ]
 )
+if settings.GLITCHTIP_DSN:
+    sentry_sdk.init(
+        dsn=settings.GLITCHTIP_DSN,
+        traces_sample_rate=1.0,
+        environment=settings.APP_ENV,
+        release="1.0.0",
+    )
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(SentryAsgiMiddleware)
+
 
 instrumentator = Instrumentator(
     should_group_status_codes=True,
