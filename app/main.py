@@ -25,8 +25,9 @@ async def lifespan(app: FastAPI):
     kafka_producer = KafkaProducer()
     await kafka_producer.start()
     logger.info("Kafka producer started (confirmed)")
+
     outbox_worker = KafkaOutboxWorker(kafka_producer=kafka_producer)
-    asyncio.create_task(outbox_worker.start())
+    outbox_task = asyncio.create_task(outbox_worker.start())
 
     handle_shipping_event_use_case = container.handle_shipping_event_use_case()
 
@@ -38,15 +39,40 @@ async def lifespan(app: FastAPI):
         group_id="order-service",
         handler=handle_shipping_event,
     )
-
     await shipment_consumer.start()
-    asyncio.create_task(shipment_consumer.run())
+    consumer_task = asyncio.create_task(shipment_consumer.run())
     logger.info("Outbox worker task created")
 
-    asyncio.create_task(update_orders_gauge())
+    gauge_task = asyncio.create_task(update_orders_gauge())
     logger.info("Metric worker current by status was started")
 
     yield
+
+    logger.info("Shutting down Kafka consumer...")
+    await shipment_consumer.stop()
+    consumer_task.cancel()
+    try:
+        await consumer_task
+    except asyncio.CancelledError:
+        pass
+
+    logger.info("Shutting down outbox worker...")
+    await outbox_worker.stop()
+    outbox_task.cancel()
+    try:
+        await outbox_task
+    except asyncio.CancelledError:
+        pass
+
+    logger.info("Shutting down Kafka producer...")
+    await kafka_producer.stop()
+
+    gauge_task.cancel()
+    try:
+        await gauge_task
+    except asyncio.CancelledError:
+        pass
+
     await container.catalog_client().close()
 
 
