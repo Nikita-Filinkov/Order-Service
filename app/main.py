@@ -49,31 +49,33 @@ async def lifespan(app: FastAPI):
     yield
 
     logger.info("Shutting down Kafka consumer...")
-    await shipment_consumer.stop()
     consumer_task.cancel()
     try:
         await consumer_task
     except asyncio.CancelledError:
         pass
+    await shipment_consumer.stop()
 
     logger.info("Shutting down outbox worker...")
-    await outbox_worker.stop()
     outbox_task.cancel()
     try:
         await outbox_task
     except asyncio.CancelledError:
         pass
+    await outbox_worker.stop()
 
     logger.info("Shutting down Kafka producer...")
     await kafka_producer.stop()
 
     gauge_task.cancel()
+
     try:
         await gauge_task
     except asyncio.CancelledError:
         pass
 
     await container.catalog_client().close()
+    await asyncio.sleep(0.2)
 
 
 container = Container()

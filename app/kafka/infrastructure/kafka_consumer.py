@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -33,6 +34,7 @@ class KafkaConsumer:
     async def stop(self):
         if self.consumer:
             await self.consumer.stop()
+            await asyncio.sleep(0.1)
 
     async def run(self):
         async for msg in self.consumer:
