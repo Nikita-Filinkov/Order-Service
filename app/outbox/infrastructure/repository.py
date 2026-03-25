@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Sequence
 from uuid import UUID
 
@@ -66,7 +66,7 @@ class OutboxRepository:
 
     async def count_deleted_tasks(self, days_to_keep: int = 7) -> int:
         """Удаляет отправленные сообщения старше days_to_keep дней"""
-        cutoff_date = datetime.now() - timedelta(days=days_to_keep)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
         count_query = (
             select(func.count())

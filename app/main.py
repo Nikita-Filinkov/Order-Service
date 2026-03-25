@@ -91,4 +91,4 @@ async def get_metrics():
 
 @app.get("/error")
 async def trigger_error():
-    division_by_zero = 1 / 0
+    1 / 0
