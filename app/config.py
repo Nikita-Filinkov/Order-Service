@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     OUTBOX_MAX_RETRIES: int = 5
     OUTBOX_DAYS_TO_KEEP: int = 7
 
-    GLITCHTIP_DSN: Optional[str] = None
+    SENTRY_DSN: Optional[str] = None
     APP_ENV: str = "development"
 
     model_config = SettingsConfigDict(

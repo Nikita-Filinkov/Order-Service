@@ -57,9 +57,9 @@ container.wire(
         "app.services.orders.presentation.routers",
     ]
 )
-if settings.GLITCHTIP_DSN:
+if settings.SENTRY_DSN:
     sentry_sdk.init(
-        dsn=settings.GLITCHTIP_DSN,
+        dsn=settings.SENTRY_DSN,
         traces_sample_rate=1.0,
         environment=settings.APP_ENV,
         release="1.0.0",
