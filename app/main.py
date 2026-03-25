@@ -87,3 +87,8 @@ app.include_router(router, tags=["orders"])
 @app.get("/metrics", include_in_schema=False)
 async def get_metrics():
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/error")
+async def trigger_error():
+    division_by_zero = 1 / 0
